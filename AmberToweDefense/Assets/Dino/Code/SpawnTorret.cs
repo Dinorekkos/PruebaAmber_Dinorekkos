@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SpawnTorret : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [SerializeField] private GameObject[] torretPlaces;
     void Start()
     {
         
