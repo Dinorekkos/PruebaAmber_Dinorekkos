@@ -34,15 +34,16 @@ namespace DINO
             set
             {
                 _currentTarget = value;
-                Debug.Log("Current target = " + _currentTarget.gameObject.name);
+                // Debug.Log("Current target = " + _currentTarget.gameObject.name);
             }
         }
         
         private bool _hasTarget = false;
+        private bool _isShooting = false;
         private EnemyTarget _currentTarget;
         private CannonState _currentState = CannonState.None;
         Queue<EnemyTarget> _enemiesQueue = new Queue<EnemyTarget>();
-
+        private Coroutine _shootingCoroutine;
 
         #endregion
         
@@ -59,6 +60,13 @@ namespace DINO
         {
             HandleCannonState();
             Debug.DrawRay(cannonTransform.position, cannonTransform.forward * visionRadius, Color.red);
+            
+            if (CurrentTarget != null && CurrentTarget.IsDead())
+            {
+                Debug.Log("Enemy is dead");
+                OnEnemyDie(CurrentTarget);
+                
+            }
         }
 
         private void HandleCannonState()
@@ -79,7 +87,7 @@ namespace DINO
         {
             if (other.gameObject.GetComponent<EnemyTarget>())
             {
-                _hasTarget = true;
+                
                 EnemyTarget enemyTarget = other.gameObject.GetComponent<EnemyTarget>();
                 OnEnemyEnter(enemyTarget);
             }
@@ -111,15 +119,14 @@ namespace DINO
         {
             GameObject bullet = Instantiate(bulletPrefab, bulletSpawnPoint.position, bulletSpawnPoint.rotation);
             CannonBullet cannonBullet = bullet.GetComponent<CannonBullet>();
+
+            if (CurrentTarget == null || CurrentTarget.gameObject == null) return;
+            
             cannonBullet.DoParabolicMovement(_currentTarget.transform, 1f, bulletSpeed);
         }
-
         private void FollowTarget()
         {
-            if (_currentTarget == null || _currentTarget.gameObject == null)
-            {
-                return;
-            }
+            if (_currentTarget == null || _currentTarget.gameObject == null) return;
             
             Vector3 targetDirection = _currentTarget.transform.position - cannonTransform.position;
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
@@ -131,21 +138,24 @@ namespace DINO
         
         private void OnEnemyEnter(EnemyTarget enemyTarget)
         {
+            _hasTarget = true;
             _enemiesQueue.Enqueue(enemyTarget);
-            _currentState = CannonState.Shooting;
-
-            if (CurrentTarget != null) return;
-            
-            CurrentTarget = _enemiesQueue.Peek(); 
-            StartCoroutine(Shoot(fireRate));
-            
+            if (_currentState != CannonState.Shooting)
+            {
+                CurrentTarget = _enemiesQueue.Peek();
+                if (_shootingCoroutine != null)
+                {
+                    StopCoroutine(_shootingCoroutine);
+                }
+                _shootingCoroutine = StartCoroutine(Shoot(fireRate));
+                _currentState = CannonState.Shooting;
+            }
         }
         
         private void OnEnemyExit()
         {
             _enemiesQueue.Dequeue();
-
-            if (_enemiesQueue.Count <= 0)
+            if (_enemiesQueue.Count == 0)
             {
                 _hasTarget = false;
                 _currentState = CannonState.Idle;
@@ -153,8 +163,50 @@ namespace DINO
                 return;
             }
             CurrentTarget = _enemiesQueue.Peek();
+            // OnEnemyDie(existingEnemy);
+        }
+
+        private void OnEnemyDie(EnemyTarget deadEnemy)
+        {
+            DestroyBulletsTargetingEnemy(deadEnemy);
+            UpdateCurrentTargetAfterEnemyDeath(deadEnemy);
         }
         
+        private void DestroyBulletsTargetingEnemy(EnemyTarget deadEnemy)
+        {
+            CannonBullet[] bullets = FindObjectsOfType<CannonBullet>();
+
+            foreach (CannonBullet bullet in bullets)
+            {
+                if (bullet.Target == deadEnemy.transform)
+                {
+                    // Debug.Log("Target Die".SetColor("#FE6644"));
+                    Destroy(bullet.gameObject);
+                }
+            }
+        }
+        private void UpdateCurrentTargetAfterEnemyDeath(EnemyTarget deadEnemy)
+        {
+            if (deadEnemy == CurrentTarget && _enemiesQueue.Count > 0)
+            {
+                _enemiesQueue.Dequeue();
+                if (_enemiesQueue.Count > 0)
+                {
+                    CurrentTarget = _enemiesQueue.Peek();
+                }
+                else
+                {
+                    ResetCannonState();
+                }
+            }
+        }
+        
+        private void ResetCannonState()
+        {
+            _hasTarget = false;
+            _currentState = CannonState.Idle;
+            StopCoroutine(Shoot(fireRate));
+        }
     }
     
     public enum CannonState

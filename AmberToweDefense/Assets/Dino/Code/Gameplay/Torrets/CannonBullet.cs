@@ -6,12 +6,25 @@ public class CannonBullet : MonoBehaviour
 {
     #region SerializedFields
     [SerializeField] private float bulletLifeTime = 3f;
+    [SerializeField] private int damage = 5;
     #endregion
-    
+
+    #region public variables
+
+    public Transform Target
+    {
+        get => _target;
+    }
+
+    #endregion
     #region private variables
     
+    private Transform _target;
     
     #endregion
+
+    #region unity methods
+    
     void Start()
     {
         
@@ -26,14 +39,32 @@ public class CannonBullet : MonoBehaviour
         }
     }
     
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<EnemyTarget>())
+        {
+            other.GetComponent<EnemyTarget>().ReceiveDamage(5);
+            Despawn();
+        }
+    }
+    #endregion
 
-    #region public variable
 
+    #region public Methods
+
+    public void UpdateTarget(Transform target)
+    {
+        _target = target;
+    }
     public void DoParabolicMovement(Transform target, float height, float duration)
     {
         StartCoroutine(ParabolicMovement(target, height, duration));
         
     }
+    #endregion
+
+    #region private methods
     
     IEnumerator ParabolicMovement(Transform target, float height, float duration)
     {
@@ -42,23 +73,16 @@ public class CannonBullet : MonoBehaviour
         float time = 0f;
         while (time < duration)
         {
-            Vector3 endPosition = target.position;
+            _target = target;
+            Vector3 endPosition = _target.position;
             float t = time / duration;
             transform.position = Vector3.Lerp(startPosition, endPosition, t) + Vector3.up * Mathf.Sin(t * Mathf.PI) * height;
             time += Time.deltaTime;
             yield return null;
         }
-        transform.position = target.position;
+        transform.position = _target.position;
     }
-    
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.GetComponent<EnemyTarget>())
-        {
-            other.GetComponent<EnemyTarget>().ReceiveDamage(10);
-            Despawn();
-        }
-    }
+
     
     private void Despawn()
     {
@@ -66,4 +90,5 @@ public class CannonBullet : MonoBehaviour
     }
 
     #endregion
+
 }

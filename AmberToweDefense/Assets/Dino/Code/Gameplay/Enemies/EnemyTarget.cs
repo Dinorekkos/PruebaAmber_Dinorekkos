@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,12 +12,36 @@ public class EnemyTarget : MonoBehaviour
 
     #endregion
 
+    #region public variables
+
+    public int Damage
+    {
+        get => damage;
+    }
+    public int Health
+    {
+        get => health;
+        set
+        {
+            health = value;
+            OnEnemyHealthChanged?.Invoke(health);
+        }
+    }
+
+    public Action<int> OnEnemyHealthChanged;
+    
+    #endregion
+    
     #region private metods
 
+    public bool IsDead()
+    {
+        return health <= 0;
+    }
     public void ReceiveDamage(int damage)
     {
         // Debug.Log("Enemy received damage: ".SetColor("#FB7607") + damage);
-        health -= damage;
+        Health -= damage;
         if (health <= 0)
         {
             Die();
@@ -25,7 +50,9 @@ public class EnemyTarget : MonoBehaviour
 
     private void Die()
     {
-        Destroy(gameObject);
+        Debug.Log("Enemy died".SetColor("#FB7607"));
+        gameObject.SetActive(false);
+        // Destroy(gameObject);
     }
     #endregion
 }
