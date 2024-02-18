@@ -23,8 +23,8 @@ namespace DINO
             set
             {
                 _currentEnemyDirection = enemyTransform.localRotation.eulerAngles.y;
-                _currentEnemyDirection += _pathManager.GetRotationWaypoint(value);
-                enemyTransform.DORotate(new Vector3(0, _currentEnemyDirection, 0), 0.7f);
+                _currentEnemyDirection = _pathManager.GetRotationWaypoint(value);
+                StartCoroutine(RotateOverTime(enemyTransform, new Vector3(0, _currentEnemyDirection, 0), 0.2f));
             }
         }
         
@@ -32,7 +32,6 @@ namespace DINO
         private float _currentEnemyDirection = 0f;
         private PathManager _pathManager;
         
-        private Action OnWaypointChange;
         #endregion
 
         #region unity methods
@@ -49,9 +48,7 @@ namespace DINO
         }
 
         #endregion
-
-
-
+        
         #region private methods
         
         private void DoMovement()
@@ -67,18 +64,26 @@ namespace DINO
             if (transform.position == _pathManager.Path[_currentWaypoint])
             {
                 Rotate = _currentWaypoint;
-                Debug.Log("Waypoint changed = ".SetColor("#C7E21A") + _currentWaypoint + " =  " + _pathManager.GetRotationWaypoint(_currentWaypoint));
-                
                 _currentWaypoint++;
-               
-                
-                Debug.Log("my rotation is ".SetColor("#1AD3E2") + _currentEnemyDirection);
-
             }
             
-            
-            // transform.DOLocalPath(_pathManager.Path, velocity).SetEase(Ease.Linear)
-            //     .OnWaypointChange((i) => { Rotate = i; });
+        }
+        
+        IEnumerator RotateOverTime(Transform transformToRotate, Vector3 targetRotation, float duration)
+        {
+            Quaternion startRotation = transformToRotate.rotation;
+            Quaternion endRotation = Quaternion.Euler(targetRotation);
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float normalizedTime = elapsed / duration;
+                transformToRotate.rotation = Quaternion.Slerp(startRotation, endRotation, normalizedTime);
+                yield return null;
+            }
+
+            transformToRotate.rotation = endRotation;
         }
         #endregion
         

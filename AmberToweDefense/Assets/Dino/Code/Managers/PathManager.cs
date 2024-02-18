@@ -48,11 +48,6 @@ public class PathManager : MonoBehaviour
     {
         _instance = this;
     }
-
-    void Update()
-    {
-        
-    }
     
     #endregion
 
