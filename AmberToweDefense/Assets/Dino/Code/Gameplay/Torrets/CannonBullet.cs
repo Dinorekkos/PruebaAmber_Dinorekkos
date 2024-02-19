@@ -6,7 +6,7 @@ public class CannonBullet : MonoBehaviour
 {
     #region SerializedFields
     [SerializeField] private float bulletLifeTime = 3f;
-    [SerializeField] private int damage = 5;
+     private int _damage = 5;
     #endregion
 
     #region public variables
@@ -57,8 +57,9 @@ public class CannonBullet : MonoBehaviour
     {
         _target = target;
     }
-    public void DoParabolicMovement(Transform target, float height, float duration)
+    public void DoParabolicMovement(Transform target, float height, float duration, int damage)
     {
+       _damage = damage;
         StartCoroutine(ParabolicMovement(target, height, duration));
         
     }

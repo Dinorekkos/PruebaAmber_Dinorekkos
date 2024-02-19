@@ -29,17 +29,20 @@ namespace DINO
             set
             {
                 _currentGameState = value;
+                HandleGameStates();
                 OnGameStateChanged?.Invoke(_currentGameState);
             }
         }
         
         public Action<GameState> OnGameStateChanged;
+        public Action OnGameOver;
         #endregion
 
         #region private variables
         
         private static GameplayController _instance;
         private GameState _currentGameState = GameState.None;
+        
         #endregion
 
         void Awake()
@@ -47,21 +50,71 @@ namespace DINO
             _instance = this;
         }
 
+       
+
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                // Debug.Log("Space pressed");
-                CurrentGameState = GameState.Playing;
-            }
+            // if (Input.GetKeyDown(KeyCode.Space))
+            // {
+            //     CurrentGameState = GameState.Playing;
+            // }
         
         }
+        
+        public void CheckEnemiesRemaining()
+        {
+            EnemyTarget[] enemies = FindObjectsOfType<EnemyTarget>();
+
+            if (AllEnemiesAreDead(enemies) && EnemySpawner.Instance.CurrentWave == EnemySpawner.Instance.MaxWave)
+            {
+                ChangeGameState(GameState.GameOver);
+            }
+            else if (AllEnemiesAreDead(enemies) && EnemySpawner.Instance.CurrentWave < EnemySpawner.Instance.MaxWave)
+            {
+                ChangeGameState(GameState.Preparing);
+            }
+          
+                
+        }
+        
+        public void ChangeGameState(GameState gameState)
+        {
+            if (gameState == CurrentGameState) return;
+            CurrentGameState = gameState;
+        }
+        
+        private bool AllEnemiesAreDead(EnemyTarget[] enemies)
+        {
+            foreach (var enemy in enemies)
+            {
+                if (!enemy.IsDead())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        private void HandleGameStates()
+        {
+            switch (CurrentGameState)
+            {
+                case GameState.None:
+                    break;
+               
+                case GameState.GameOver:
+                    OnGameOver?.Invoke();
+                    break;
+              
+            }
+        }
+       
     }
     
     public enum GameState
     {
         None,
-        Countdown,
+        Preparing,
         Playing,
         GameOver
     }

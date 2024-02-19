@@ -1,0 +1,54 @@
+{
+    "name": "MouseInputs",
+    "maps": [
+        {
+            "name": "Mouse",
+            "id": "f67968e6-7846-42e0-86b4-154b6c4281d0",
+            "actions": [
+                {
+                    "name": "OnInteract",
+                    "type": "Button",
+                    "id": "820fb7f3-65cc-49c0-85b4-c7daf7df4428",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "MousePos",
+                    "type": "Value",
+                    "id": "27acd931-9f7f-4c5b-b3b1-8c8e38caf4f3",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "4dfc3aee-1e21-462d-8729-c13b746d3e51",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OnInteract",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "08e8ffe3-3cfd-4ff3-9ae9-dc460ce132c9",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MousePos",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

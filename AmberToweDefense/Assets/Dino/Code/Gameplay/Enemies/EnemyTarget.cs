@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DINO;
 using UnityEngine;
 
 public class EnemyTarget : MonoBehaviour
@@ -38,9 +39,12 @@ public class EnemyTarget : MonoBehaviour
     {
         return health <= 0;
     }
+    public void SetDeadByTower()
+    {
+        health = 0;
+    }
     public void ReceiveDamage(int damage)
     {
-        // Debug.Log("Enemy received damage: ".SetColor("#FB7607") + damage);
         Health -= damage;
         if (health <= 0)
         {
@@ -50,9 +54,9 @@ public class EnemyTarget : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Enemy died".SetColor("#FB7607"));
         gameObject.SetActive(false);
-        // Destroy(gameObject);
+        CurrencyManager.Instance.AddCurrency(5);
+        GameplayController.Instance.CheckEnemiesRemaining();
     }
     #endregion
 }

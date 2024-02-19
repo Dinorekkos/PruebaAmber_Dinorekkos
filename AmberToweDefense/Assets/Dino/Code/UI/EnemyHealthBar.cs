@@ -3,33 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EnemyHealthBar : MonoBehaviour
+namespace DINO
 {
-    
-    #region SerializedFields
-    
-    [SerializeField] private EnemyTarget enemy;
-    [SerializeField] private Slider slider;
-    
-    #endregion
-    
-    #region private methods
-    void Start()
+    public class EnemyHealthBar : MonoBehaviour
     {
-        slider.maxValue = enemy.Health;
-        slider.value = enemy.Health;
         
-        enemy.OnEnemyHealthChanged += UpdateHealthBar;
+        #region SerializedFields
+        
+        [SerializeField] private EnemyTarget enemy;
+        [SerializeField] private Slider slider;
+        
+        #endregion
+        
+        #region private methods
+        void Start()
+        {
+            slider.maxValue = enemy.Health;
+            slider.value = enemy.Health;
+            
+            enemy.OnEnemyHealthChanged += UpdateHealthBar;
+        }
+        
+        private void OnDestroy()
+        {
+            enemy.OnEnemyHealthChanged -= UpdateHealthBar;
+        }
+        private void UpdateHealthBar(int value)
+        {
+            slider.value = value;
+        }
+        #endregion
+        
     }
-    
-    private void OnDestroy()
-    {
-        enemy.OnEnemyHealthChanged -= UpdateHealthBar;
-    }
-    private void UpdateHealthBar(int value)
-    {
-        slider.value = value;
-    }
-    #endregion
-    
+
 }

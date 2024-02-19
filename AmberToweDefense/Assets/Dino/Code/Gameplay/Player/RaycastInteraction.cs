@@ -1,39 +1,49 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DINO;
 using UnityEngine;
-// using UnityEngine.InputSystem;
+using UnityEngine.InputSystem;
 
 namespace DINO
 { 
     public class RaycastInteraction : MonoBehaviour
     {
+        #region SerializedFields
         [SerializeField] private LayerMask layerInteractions;
         [SerializeField] private float raycastDistance = 100f;
-        // [SerializeField] CameraController cameraController;
-        // [SerializeField] private InputActionReference mousePosition;
+        [SerializeField] private InputActionReference mousePosition;
+        #endregion
 
-        // [Header("ProjectUI")] [SerializeField] private ProjectUI projectUI;
-
+        #region private variables
         private Vector2 _senderPosition;
         private bool _isInteracting = false;
+        #endregion
+        
+        #region unity methods
+        private void OnEnable()
+        {
+            mousePosition.action.Enable();
+        }
 
-        // public void OnInteraction(InputAction.CallbackContext context)
-        // {
-        //
-        //     if (cameraController.CameraState != CameraStates.City) return;
-        //
-        //     _senderPosition = mousePosition.action.ReadValue<Vector2>();
-        //     _isInteracting = context.started || context.performed;
-        //
-        //     if (_isInteracting)
-        //     {
-        //         SendRaycastFromMousePos();
-        //     }
-        //
-        // }
+        #endregion
 
+        #region public methods
+        public void OnInteraction(InputAction.CallbackContext context)
+        {
+            _senderPosition = mousePosition.action.ReadValue<Vector2>();
+            _isInteracting = context.started;
+        
+            if (_isInteracting)
+            {
+                SendRaycastFromMousePos();
+            }
+        
+        }
+        #endregion
 
+        #region private methods
+        
         private void SendRaycastFromMousePos()
         {
             RaycastHit hit;
@@ -42,15 +52,16 @@ namespace DINO
 
             if (Physics.Raycast(ray, out hit, raycastDistance, layerInteractions))
             {
-                Debug.Log(hit.collider.gameObject.name);
                 Debug.DrawRay(ray.origin, ray.direction * raycastDistance, Color.red, 1f);
-                if (hit.collider.gameObject.CompareTag("Project"))
+                if (hit.collider.gameObject.CompareTag("Torrets"))
                 {
-                    // BuildingObject building = hit.collider.gameObject.GetComponent<BuildingObject>();
-                    // projectUI.SetInfo(building.ProjectData);
-                    // projectUI.ShowProjectUI();
+                    Cannon cannon = hit.collider.gameObject.GetComponent<Cannon>();
+                    cannon.HandleClickCannon();
+                    
                 }
             }
         }
+        #endregion
+
     }
 }

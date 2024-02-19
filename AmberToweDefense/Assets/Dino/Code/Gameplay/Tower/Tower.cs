@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DINO;
 using UnityEngine;
 
 public class Tower : MonoBehaviour
@@ -35,6 +36,7 @@ public class Tower : MonoBehaviour
         if (other.GetComponent<EnemyTarget>())
         {
             EnemyTarget enemy = other.GetComponent<EnemyTarget>();
+            enemy.SetDeadByTower();
             ReceiveDamage(enemy.Damage);
         }
     }
@@ -44,8 +46,8 @@ public class Tower : MonoBehaviour
     #region public Methods
     public void ReceiveDamage(int damage)
     {
-        Debug.Log("Tower received damage: ".SetColor("#FB7607") + damage);
         Health -= damage;
+        GameplayController.Instance.CheckEnemiesRemaining();
         if (health <= 0)
         {
             TowerDied();
@@ -63,9 +65,8 @@ public class Tower : MonoBehaviour
     
     private void TowerDied()
     {
-        Debug.Log("Tower died".SetColor("#FB7607"));
         OnTowerDied?.Invoke();  
-        // gameObject.SetActive(false);
+        GameplayController.Instance.ChangeGameState(GameState.GameOver);
     }
 
     #endregion

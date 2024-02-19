@@ -31,6 +31,7 @@ namespace DINO
         private int _currentWaypoint = 0;
         private float _currentEnemyDirection = 0f;
         private PathManager _pathManager;
+        private GameplayController _gameplayController;
         
         #endregion
 
@@ -38,12 +39,18 @@ namespace DINO
         void Start()
         {
             _pathManager = PathManager.Instance;
+            _gameplayController = GameplayController.Instance;
             _currentEnemyDirection = enemyTransform.localRotation.eulerAngles.y;
             DoMovement();
         }
 
         private void FixedUpdate()
         {
+            if(_gameplayController.CurrentGameState == GameState.GameOver)
+            {
+                return;
+            }
+                
             DoMovement();
         }
 
